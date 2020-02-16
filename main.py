@@ -207,7 +207,7 @@ try:
         bpm_database[track['id']] = tracks[track_index]
 
     # Sort the playlist and submit it to Spotify.
-    tracks.sort(key=lambda track: track.age if 'bpm' in track else 9999)
+    tracks.sort(key=lambda track: track['bpm'] if 'bpm' in track else 9999)
     sort_playlist_based_on_tracks(sp, playlist_id=playlist_id, tracks=tracks)
 
 # Catch exceptions.
