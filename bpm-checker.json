@@ -1,0 +1,42 @@
+{
+  "3ihMiG7GPZdsWJcf7Tyevw": {
+    "artists": ["Miguel Enriquez"],
+    "id": "3ihMiG7GPZdsWJcf7Tyevw",
+    "name": "Abre Que Voy",
+    "uri": "spotify:track:3ihMiG7GPZdsWJcf7Tyevw",
+    "playlist_order": 0,
+    "bpm": 242
+  },
+  "0yxwv6qD168MFlR9okzJne": {
+    "artists": ["Latino Royale"],
+    "id": "0yxwv6qD168MFlR9okzJne",
+    "name": "007 Theme",
+    "uri": "spotify:track:0yxwv6qD168MFlR9okzJne",
+    "playlist_order": 1,
+    "bpm": 395
+  },
+  "6ClxP0rIXb1yGX8JBOBBmY": {
+    "artists": ["Chris Jones"],
+    "id": "6ClxP0rIXb1yGX8JBOBBmY",
+    "name": "Long After You're Gone",
+    "uri": "spotify:track:6ClxP0rIXb1yGX8JBOBBmY",
+    "playlist_order": 2,
+    "bpm": 80
+  },
+  "6ttsH99vfvkAPF3s1tIPqB": {
+    "artists": ["Nils Lofgren"],
+    "id": "6ttsH99vfvkAPF3s1tIPqB",
+    "name": "Keith Don't Go",
+    "uri": "spotify:track:6ttsH99vfvkAPF3s1tIPqB",
+    "playlist_order": 3,
+    "bpm": 59
+  },
+  "60reuQQhwzeGOsrd2t62AS": {
+    "artists": ["Els Amics De Les Arts"],
+    "id": "60reuQQhwzeGOsrd2t62AS",
+    "name": "4-3-3",
+    "uri": "spotify:track:60reuQQhwzeGOsrd2t62AS",
+    "playlist_order": 0,
+    "bpm": 112
+  }
+}
