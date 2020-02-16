@@ -7,6 +7,10 @@ This simple python application helps you manually sort your spotify playlists if
 * Caches songs you've checked in the past to prevent double work.
 * Has a safe fallback in case of problems.
 
+<p align="center">
+  <img src="./demo.gif">
+</p>
+
 ## Installation
 Tested on Python 3.7 or higher. Comes with "it works on my machine"-guarantees. Install recommended using a virtualenv and the requirements.txt file. 
 
