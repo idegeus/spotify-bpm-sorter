@@ -9,10 +9,15 @@ load_dotenv()
 
 CACHE_FILE = "./bpm-checker.json"
 
-
-# Calculates the bpm of a song (roughly) by summing up the counts between a certain amount of taps. 
+# Calculates the bpm of a song (roughly) by 
+#   summing up the counts between a certain amount of taps. 
 def determine_bpm(requested_bpm_accuracy = 8):
-    print("\nTap {} times to the beat using enter key. If you made a mistake, type rs and then enter.".format(requested_bpm_accuracy))
+
+    print("\nTap {} times to the beat using enter key. \
+        If you made a mistake, type rs and then enter. \
+        To remove the song, press d and enter.".format(
+            requested_bpm_accuracy))
+
     i = total_time = 0
     while i is not requested_bpm_accuracy:
         user_input = input("Press enter on the beat: ")
@@ -22,10 +27,15 @@ def determine_bpm(requested_bpm_accuracy = 8):
             print("Resetting count of this number, start again now.")
             i = total_time = start_time = 0
             continue
+            total_time += time.time() - start_time
+        if user_input == "d":
+            return {"bpm": 9999, "status": "DELETE"}
         start_time = time.time()
         i += 1
+
     total_time += time.time() - start_time
-    return ceil(60 * (requested_bpm_accuracy-1) / total_time)
+    bpm = ceil(60 * (requested_bpm_accuracy-1) / total_time)
+    return {"bpm": bpm, "status": "OK"}
 
 # Function that's for getting a dictionary of all user playlists. 
 def get_user_playlists(sp):
@@ -37,12 +47,17 @@ def get_user_playlists(sp):
     while not finished:
 
         # Get playlists that the user can modify.
-        current_results = sp.current_user_playlists(limit=50, offset=offset)
+        current_results = sp.current_user_playlists(
+            limit=50, 
+            offset=offset)
         items += [
-            {"id": playlist['id'], "name": playlist['name'], "snapshot_id": playlist['snapshot_id']} 
+            {   "id": playlist['id'], 
+                "name": playlist['name'], 
+                "snapshot_id": playlist['snapshot_id'] } 
             for playlist in current_results['items']
-            if playlist['owner']['display_name'] == user_name or playlist['collaborative']
-        ]
+            if (
+                playlist['owner']['display_name'] == user_name 
+                or playlist['collaborative']) ]
 
         # Make sure we're looping until we've got everything.
         if (offset + 50) >= current_results['total']:
@@ -57,7 +72,10 @@ def open_bpm_cache():
         with open(CACHE_FILE, "r") as json_file:
             track_file = json.load(json_file)
             if not track_file: return {}
-            return {track_id:track_file[track_id] for track_id in track_file if 'bpm' in track_file[track_id]}
+            return {
+                track_id:track_file[track_id] 
+                for track_id in track_file 
+                if 'bpm' in track_file[track_id] }
     else:
         return {}
 
@@ -67,13 +85,17 @@ def select_playlist(sp):
 
     print("\nYour playlists: ")
     for index in range(len(playlists)):
-        print("{index: <4} {name}".format(index=index, name=playlists[index]['name']))
+        print("{index: <4} {name}".format(
+            index=index, 
+            name=playlists[index]['name']))
 
     is_selected = False
     while not is_selected:
-        selected = int(input("\nNow type the playlist you would like to sort by number: ".strip()) or -1)
+        selected = int(input("\nEnter playlist number number: ".strip()) or -1)
         if 0 <= selected < len(playlists): 
-            is_selected = input("You are sorting list '{}', type 'y' if you want to continue.".format(playlists[selected]['name'])).lower() == "y"
+            is_selected = input(
+                "You are sorting list '{}', type 'y' if you want to continue.".format(
+                    playlists[selected]['name'])).lower() == "y"
 
     return playlists[selected]
 
@@ -86,7 +108,12 @@ def get_playlist_tracks(sp, playlist_id):
     while True:
 
         # Get user's playlists.
-        results = sp.playlist_tracks(playlist_id=playlist_id, fields="total,items(track(id,uri,name,artists(name)))", limit=50, offset=offset)
+        results = sp.playlist_tracks(
+            playlist_id=playlist_id, 
+            fields="total,items(track(id,uri,name,artists(name)))", 
+            limit=50, 
+            offset=offset)
+
         for track in [item['track'] for item in results['items']]:
             track['track_position'] = track_position
             track['artists'] = [artist['name'] for artist in track['artists']]
@@ -106,17 +133,21 @@ def select_user_device(sp):
 
     print("Your devices: ")
     for index in range(len(devices)):
-        print("{index: <3} {name}".format(index=index, name=devices[index]['name']))
+        print("{index: <3} {name}".format(
+            index=index, 
+            name=devices[index]['name']))
 
     while True:
         device_index = int(
-            input("\nSelect a device on which to play ({}): ".format(devices[0]['name'])).strip() or 0)
+            input("\nSelect a device on which to play ({}): "
+                .format(devices[0]['name'])).strip() 
+            or 0)
         if 0 <= device_index < len(devices): return devices[device_index]['id']
 
 # Asks the user if automated music should be played.
 def ask_automated_music():
     while True:
-        answer = input("\nDo you want to automatically play the analysed music? Y/n: ").lower()
+        answer = input("\Autoplay the analysed music? Y/n: ").lower()
         if answer == "": answer = "y"
         if answer in ["y", "n"]: break;
     return answer == "y"
@@ -134,16 +165,23 @@ def ask_track_operation():
         answer = int(input("Answer (0): ") or 0)
         if 0 <= answer <= 2: return answer
 
-# Uses spotipy's function to set the right order in a playlist. Preserves added_by_date. 
+# Uses spotipy's function to set the right order in a playlist.
 def sort_playlist_based_on_tracks(sp, user_id, playlist, tracks = []):
 
     track_ids = [track['id'] for track in tracks]
 
     for offset in range(ceil(len(track_ids)/100)):
-        sp.user_playlist_remove_all_occurrences_of_tracks(user=user_id, playlist_id=playlist['id'], tracks=track_ids[offset*100:offset*100+100], snapshot_id=playlist['snapshot_id'])
+        sp.user_playlist_remove_all_occurrences_of_tracks(
+            user=user_id, 
+            playlist_id=playlist['id'], 
+            tracks=track_ids[offset*100:offset*100+100], 
+            snapshot_id=playlist['snapshot_id'])
     
     for offset in range(ceil(len(track_ids)/100)):
-        sp.user_playlist_add_tracks(user=user_id, playlist_id=playlist['id'], tracks=track_ids[offset*100:offset*100+100])
+        sp.user_playlist_add_tracks(
+            user=user_id, 
+            playlist_id=playlist['id'], 
+            tracks=track_ids[offset*100:offset*100+100])
 
     # Sorting algorithm that would have worked if I had more time ...
     # for i in range(len(tracks)-1, -1, -1):
@@ -179,8 +217,9 @@ playlist = select_playlist(sp)
 user_id = sp.current_user()['id']
 tracks = get_playlist_tracks(sp, playlist_id = playlist['id'])
 
-# Ask for the amount of taps, amount of skipped seconds, operation per track and automatic play option.
-print("Be aware that this tool will reset the added-by-date in your spotify list. Continue only if you don't mind.")
+# Ask for the amount of taps, amount of skipped seconds, 
+#    operation per track and automatic play option.
+print("Be aware that this tool will reset added-by-date in your spotify list.")
 taps = int(input("Taps to enter per song (8): ") or 8)
 standard_skip = int(input("Seconds headstart in songs (30): ") or 30)*1000
 track_operation = ask_track_operation()
@@ -190,26 +229,35 @@ if automated_music: device_id = select_user_device(sp)
 # Open bpm database (local cache).
 bpm_database = open_bpm_cache()
 
-# Start analysing the songs. This is in a try_catch loop, so we don't lose analysed songs.
+# Start analysing the songs. 
+# This is in a try_catch loop, so we don't lose analysed songs.
 print("\nWe're starting the sorting of songs now.")
 # try: 
 if True:
     
-    # Loop over the index of all tracks in the playlist.
+    # Loop over the index of all tracks in the playlist. 
+    # We delete elements from spotify, the index has to shift back.
+    deleted_tracks = 0
     for track_index in range(len(tracks)):
-
+        track_index -= deleted_tracks
         # Get current track based on index, get the known bpm if it exists.
         track = tracks[track_index]
-        track_bpm_known = (bpm_database and track['id'] in bpm_database and 'bpm' in bpm_database[track['id']])
+        track_bpm_known = (
+            bpm_database and track['id'] in bpm_database
+            and 'bpm' in bpm_database[track['id']])
 
-        # If we already have the track information and operation is to skip it, skip it.
+        # Skip if we have the track information and operation is to skip it
         if track_bpm_known and track_operation == SKIP_TRACK:
             tracks[track_index]['bpm'] = bpm_database[track['id']]['bpm']
             continue
 
         # Sleep a bit to give the user a bit of rest.
         time.sleep(0.5)
-        print("{cur}/{total} Analysing {name} by {artist}".format(cur=track_index, total=len(tracks), name=track['name'], artist=", ".join(track['artists'])))
+        print("{cur}/{total} Analysing {name} by {artist}".format(
+            cur=track_index, 
+            total=len(tracks), 
+            name=track['name'], 
+            artist=", ".join(track['artists'])))
         
         # Play music if user requested it.
         if automated_music: 
@@ -217,14 +265,28 @@ if True:
             sp.seek_track(position_ms=standard_skip, device_id=device_id)
 
         # Determining the bpm
-        bpm = determine_bpm(taps)
+        bpm_result = determine_bpm(taps)
+        bpm = bpm_result['bpm']
+        if bpm_result['status'] == "DELETE":
+            deleted_tracks += 1
+            del tracks[track_index]
+            sp.user_playlist_remove_specific_occurrences_of_tracks(
+                user_id=user_id, 
+                playlist_id=playlist['id'], 
+                tracks=[{
+                    "uri": tracks[track_index]['uri'], 
+                    "positions": [track_index]}], 
+                snapshot_id=playlist['snapshot_id'])
+            continue
+        
         print("You determined this song on {} bpm.".format(bpm))
 
-        # Averaging this bpm with the one already noted, if the user requested so.
+        # Averaging this bpm with the one already noted.
         if track_bpm_known and track_operation == AVERAGE_TRACK:
             old_bpm = bpm_database[track['id']]
             bpm = (bpm+old_bpm) / 2
-            print("Noted bpm was {}, wrote down {} bpm as average.".format(old_bpm, bpm))
+            print("Noted bpm was {}, wrote down {} bpm as average."
+                .format(old_bpm, bpm))
 
         # Pause playback, note bpm and continue loop.
         print("")
@@ -234,14 +296,20 @@ if True:
 
     # Sort the playlist and submit it to Spotify.
     tracks.sort(key=lambda track: track['bpm'] if 'bpm' in track else 9999)
-    sort_playlist_based_on_tracks(sp, user_id=user_id, playlist=playlist, tracks=tracks)
+    sort_playlist_based_on_tracks(
+        sp, 
+        user_id=user_id, 
+        playlist=playlist, 
+        tracks=tracks)
 
 # Catch exceptions.
 # except BaseException as e: 
 #     print(str(e))
-#     print("Something went wrong while analysing. Songs until now have been saved. Nothing is sorted.")
+#     print("Something went wrong while analysing.")
+#     print("Songs until now have been saved. Nothing is sorted.")
 
 # Write the user's work to the disk.
+
 with open(CACHE_FILE, "w") as json_file:
     json_file.write(json.dumps(bpm_database))
 
