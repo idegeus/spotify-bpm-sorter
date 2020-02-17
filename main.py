@@ -13,9 +13,9 @@ CACHE_FILE = "./bpm-checker.json"
 #   summing up the counts between a certain amount of taps. 
 def determine_bpm(requested_bpm_accuracy = 8):
 
-    print("\nTap {} times to the beat using enter key. \
-        If you made a mistake, type rs and then enter. \
-        To remove the song, press d and enter.".format(
+    print("\nTap {} times to the beat using enter key.\
+        \nIf you made a mistake, type rs and then enter. \
+        \nTo remove the song, press d and enter.".format(
             requested_bpm_accuracy))
 
     i = total_time = 0
@@ -139,7 +139,7 @@ def select_user_device(sp):
 
     while True:
         device_index = int(
-            input("\nSelect a device on which to play ({}): "
+            input("Select a device on which to play ({}): "
                 .format(devices[0]['name'])).strip() 
             or 0)
         if 0 <= device_index < len(devices): return devices[device_index]['id']
@@ -147,7 +147,7 @@ def select_user_device(sp):
 # Asks the user if automated music should be played.
 def ask_automated_music():
     while True:
-        answer = input("\Autoplay the analysed music? Y/n: ").lower()
+        answer = input("\nAutoplay the analysed music? Y/n: ").lower()
         if answer == "": answer = "y"
         if answer in ["y", "n"]: break;
     return answer == "y"
@@ -269,14 +269,14 @@ if True:
         bpm = bpm_result['bpm']
         if bpm_result['status'] == "DELETE":
             deleted_tracks += 1
-            del tracks[track_index]
             sp.user_playlist_remove_specific_occurrences_of_tracks(
-                user_id=user_id, 
+                user=user_id, 
                 playlist_id=playlist['id'], 
                 tracks=[{
                     "uri": tracks[track_index]['uri'], 
-                    "positions": [track_index]}], 
-                snapshot_id=playlist['snapshot_id'])
+                    "positions": [track_index]}])
+            print("Track deleted. \n")
+            del tracks[track_index]
             continue
         
         print("You determined this song on {} bpm.".format(bpm))
