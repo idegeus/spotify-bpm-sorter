@@ -212,17 +212,22 @@ if not token:
     quit()
 sp = spotipy.Spotify(auth=token)
 
-# Make user select a playlist to analyse and get the tracks
+# Make user select a playlist to analyse and get the tracks.
 playlist = select_playlist(sp)
 user_id = sp.current_user()['id']
 tracks = get_playlist_tracks(sp, playlist_id = playlist['id'])
 
-# Ask for the amount of taps, amount of skipped seconds, 
-#    operation per track and automatic play option.
+# Ask for the amount of taps for determining bpm.
 print("Be aware that this tool will reset added-by-date in your spotify list.")
 taps = int(input("Taps to enter per song (8): ") or 8)
+
+# Ask for headstart in spotify songs.
 standard_skip = int(input("Seconds headstart in songs (30): ") or 30)*1000
+
+# Ask track operation, averaging, replacing or skipping (if known).
 track_operation = ask_track_operation()
+
+# Ask if script should start automated music. 
 automated_music = ask_automated_music()
 if automated_music: device_id = select_user_device(sp)
 
